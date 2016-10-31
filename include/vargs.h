@@ -19,6 +19,4 @@ typedef __builtin_va_list va_list;
 //(p = (va_list)NULL)
 #define va_end(ap)
 
-int printk(const int8_t *format, ...);
-
 #endif
