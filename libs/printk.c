@@ -82,7 +82,7 @@ int vprintk(const int8_t * format, char *ap)
     int pc;
     pc = 0;
 
-    for ( ; *format != '0'; ++format)
+    for ( ; *format != '\0'; ++format)
     {
         if (*format == '%') {
             ++format;
