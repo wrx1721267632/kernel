@@ -5,8 +5,8 @@
 	> Created Time: 2016年10月25日 星期二 22时15分21秒
  ************************************************************************/
 
-#include"../include/console.h"
-#include"../include/common.h"
+#include "console.h"
+#include "common.h"
 
 //VGA的显示缓冲的起点是0xb8000
 static uint16_t *video_memory = (uint16_t *)0xB8000;
