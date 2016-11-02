@@ -1,6 +1,6 @@
 #编译所有文件
 
-C_SOURCES=$(shell find . -name *.c)
+C_SOURCES=$(shell find . -name "*.c")
 
 #$(patsubst <pattern>,<replacement>,<text>)
 #名称:模式字符串替换函数--patsubst.
@@ -11,7 +11,7 @@ C_SOURCES=$(shell find . -name *.c)
 #返回:函数返回被替换过后的字符串
 C_OBJECTS=$(patsubst %.c, %.o, $(C_SOURCES))
 
-S_SOURCES=$(shell find . -name *.s)
+S_SOURCES=$(shell find . -name "*.s")
 
 S_OBJECTS=$(patsubst %.s, %.o, $(S_SOURCES))
 
@@ -30,7 +30,8 @@ RM=rm
 #gcc -gstabs:以stabs格式声称调试信息,并且包含仅供gdb额外调试信息.
 #gcc -ggdb:尽可能的生成gdb的可以使用的调试信息.
 #gcc -I:用来制定的头文件目录
-CC_FLAGS= -c -Wall -ggdb -I -nostdlib -fno-builtin -m32 -fno-stack-protector -gstabs+
+CC_FLAGS= -c -Wall -ggdb -I -nostdlib -fno-builtin -m32 -fno-stack-protector -gstabs+ \
+		  -Iinclude
 
 #-T:指定链接脚本文件
 #-m elf_i386:生成i386平台下的elf格式的可执行文件
@@ -58,7 +59,7 @@ link:
 
 .PHONY:clean
 clean:
-	$(RM) $(C_OBJECTS) $(S_OBJECTS) kernel kernel.iso disk.img boot/kernel
+	$(RM) $(C_OBJECTS) $(S_OBJECTS) kernel kernel.iso disk.img
 
 .PHONY:update
 update:
