@@ -5,7 +5,7 @@
 	> Created Time: 2016年10月31日 星期一 17时00分30秒
  ************************************************************************/
 
-#include "../include/debug.h"
+#include "debug.h"
 
 static void print_stack_trace();
 static elf_t kernel_elf;

@@ -5,7 +5,7 @@
 	> Created Time: 2016年10月27日 星期四 21时52分36秒
  ************************************************************************/
 
-#include"../include/string.h"
+#include"string.h"
 
 inline void *memcpy(void *dest, const void *src, uint32_t len)
 {

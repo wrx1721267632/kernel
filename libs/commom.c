@@ -5,7 +5,7 @@
     > Created Time: 2016年10月25日 星期二 19时59分14秒
  ************************************************************************/
 
-#include "../include/common.h"
+#include "common.h"
 
 //端口写一个字节
 inline void outb(uint16_t port, uint8_t value)

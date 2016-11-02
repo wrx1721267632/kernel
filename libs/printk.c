@@ -5,9 +5,9 @@
 	> Created Time: 2016年10月30日 星期日 11时24分42秒
  ************************************************************************/
 
-#include"../include/vargs.h"
-#include"../include/string.h"
-#include"../include/common.h"
+#include"vargs.h"
+#include"string.h"
+#include"common.h"
 
 static void printchar(int8_t str);
 static int  vprintk(const int8_t * format, char *ap);
