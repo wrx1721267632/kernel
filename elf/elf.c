@@ -5,9 +5,9 @@
 	> Created Time: 2016年10月30日 星期日 22时16分37秒
  ************************************************************************/
 
-#include"../include/common.h"
-#include"../include/string.h"
-#include"../include/elf.h"
+#include"common.h"
+#include"string.h"
+#include"elf.h"
 
 elf_t elf_from_multiboot(multiboot_t *mb)
 {
