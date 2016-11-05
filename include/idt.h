@@ -25,7 +25,7 @@ struct idt_entry_t {
 
 //IDTR
 typedef
-strutc idt_ptr_t {
+struct idt_ptr_t {
     uint16_t limit;         //限长
     uint32_t base;          //基址
 }__attribute__((packed)) idt_ptr_t;
