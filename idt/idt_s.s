@@ -2,7 +2,7 @@
 
 ; 用于没有错误代码的中断
 %macro ISR_NOERRCODE 1
-[GLOBAl isr%1]
+[GLOBAL isr%1]
 isr%1:
         cli             ; 首先关闭中断
         push 0          ; push 无效的中断错误代码
@@ -11,16 +11,16 @@ isr%1:
 %endmacro
 
 ; 用于有错误代码的中断
-%marco ISR_ERRCODE 1
+%macro ISR_ERRCODE 1
 [GLOBAL isr%1]
 isr%1:
         cli             ; 关闭中断
         push %1         ; push 中断号
-        jmp isr_common_stub'
+        jmp isr_common_stub
 %endmacro
 
 ; 定义中断处理函数
-ISR_NOERRCODE 0		; 0 #DE 除 0 异常
+ISR_NOERRCODE 0		    ; 0 #DE 除 0 异常
 ISR_NOERRCODE 1         ; 1 #DB 异常调试
 ISR_NOERRCODE 2         ; 2 NMI
 ISR_NOERRCODE 3         ; 3 BP 断点异常
@@ -58,3 +58,42 @@ ISR_NOERRCODE 31
 
 ; 255 用户自定义
 ISR_NOERRCODE 255
+
+[GLOBAL isr_common_stub]
+[EXTERN isr_handler]
+
+; 中断服务程序
+isr_common_stub:
+        pusha               ; Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+        mov ax, ds
+        push eax            ; 保存数据段描述符
+
+        mov ax, 0x10        ; 加载内核数据段描述符表
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        mov ss, ax
+
+        push esp            ; 此时的 esp 寄存器的值等价于 pt_regs 结构体的指针
+        call isr_handler    ; 在 c 语言代码中
+        add esp, 4          ; 清除压入的参数
+
+        pop ebx             ; 恢复原来的数据段描述符
+        mov ds, bx
+        mov es, bx
+        mov fs, bx
+        mov gs, bx
+        mov ss, bx
+
+        popa                ; Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
+        add esp, 8          ; 清理栈里的 error code 和 ISR
+        iret
+.end:
+
+[GLOBAL idt_flush]
+idt_flush:
+        mov eax, [esp+4]    ; 参数存入 eax 寄存器
+        lidt [eax]          ; 加载到 IDTR
+        ret
+.end:
