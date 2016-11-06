@@ -97,3 +97,6 @@ idt_flush:
         lidt [eax]          ; 加载到 IDTR
         ret
 .end:
+
+; 构造中断请求的宏
+%macro IRQ 2

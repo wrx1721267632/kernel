@@ -28,6 +28,36 @@ extern void idt_flush(uint32_t);
 // 初始化中断描述符表
 void init_idt()
 {
+    // 重新映射
+    // 两片级联的Intel 8259A 芯片
+    // 主片端口 0x20 0x21
+    // 从片端口 0xA0 0xA1
+
+    // 初始化主片,从片
+    // 0001 0001
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+
+    // 设置主片 IRQ 从 0x20(32) 号中断开始
+    outb(0x21, 0x20);
+
+    // 设置从片 IRQ 从 0x28(40) 号中断开始
+    outb(0xA1, 0x28);
+
+    // 设置主片 IR2 引脚连接从片
+    outb(0x21, 0x04);
+
+    // 告诉从片输出引脚和主片 IR2 号连接
+    outb(0xA1, 0x02);
+
+    // 设置主片和从片按照 8086 的方式工作
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+
+    // 设置主从片允许中断
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
+
     bzero((uint8_t *)&interrupt_handlers, sizeof(interrupt_handler_t) * 256);
 
     idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
