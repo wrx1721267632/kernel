@@ -8,7 +8,7 @@ SECTIONS {
             *0x100000 = 1M
             */
         . = 0x100000;
-
+        PROVIDE( kern_start = .);
         .text :
         {
             *(.text)
@@ -40,4 +40,5 @@ SECTIONS {
             *(.stabstr)
             . = ALIGN(4096);
         }
+        PROVIDE( kern_end = .);
 }
