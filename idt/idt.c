@@ -99,6 +99,23 @@ void init_idt()
     idt_set_gate(30, (uint32_t)isr30,  0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31,  0x08, 0x8E);
 
+    idt_set_gate(32, (uint32_t)irq0,  0x08, 0x8E);
+    idt_set_gate(33, (uint32_t)irq1,  0x08, 0x8E);
+    idt_set_gate(34, (uint32_t)irq2,  0x08, 0x8E);
+    idt_set_gate(35, (uint32_t)irq3,  0x08, 0x8E);
+    idt_set_gate(36, (uint32_t)irq4,  0x08, 0x8E);
+    idt_set_gate(37, (uint32_t)irq5,  0x08, 0x8E);
+    idt_set_gate(38, (uint32_t)irq6,  0x08, 0x8E);
+    idt_set_gate(39, (uint32_t)irq7,  0x08, 0x8E);
+    idt_set_gate(40, (uint32_t)irq8,  0x08, 0x8E);
+    idt_set_gate(41, (uint32_t)irq9,  0x08, 0x8E);
+    idt_set_gate(42, (uint32_t)irq10,  0x08, 0x8E);
+    idt_set_gate(43, (uint32_t)irq11,  0x08, 0x8E);
+    idt_set_gate(44, (uint32_t)irq12,  0x08, 0x8E);
+    idt_set_gate(45, (uint32_t)irq13,  0x08, 0x8E);
+    idt_set_gate(46, (uint32_t)irq14,  0x08, 0x8E);
+    idt_set_gate(47, (uint32_t)irq15,  0x08, 0x8E);
+
     // 255 将来用于实现系统调用
     idt_set_gate(255, (uint32_t)isr255, 0x08, 0x8E);
 
@@ -129,3 +146,31 @@ void isr_handler(pt_regs *regs)
         printk("Unhandled interrupt: %d\n", regs->int_no);
     }
 }
+
+void register_interrupt_handler(uint8_t n, interrupt_handler_t h)
+{
+    interrupt_handlers[n] = h;
+}
+
+// IRQ 处理函数
+void irq_handler(pt_regs *regs)
+{
+    // 发送中断结束信号给 PICs
+    // 按照我们的设置, 从 32 号中断起为用户中断起为用户定义中断
+    // 因为单片的　Intel 8259A 芯片只能处理 8 级中断
+    // 故大于等于 40 的中断号是由从片处理的
+
+    if (regs->int_no >= 40) {
+        // 发送重设信号给从片
+        outb(0xA0, 0x20);
+    }
+
+    // 发送重设信号给主片
+    outb(0x20, 0x20);
+
+    if (interrupt_handlers[regs->int_no]) {
+        interrupt_handlers[regs->int_no](regs);
+    }
+}
+
+
