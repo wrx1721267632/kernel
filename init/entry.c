@@ -9,6 +9,7 @@
 #include "gdt.h"
 #include "console.h"
 #include "idt.h"
+#include "timer.h"
 
 int kern_entry()
 {
@@ -25,7 +26,9 @@ int kern_entry()
     //输出字符串
     console_write_color("hello, kernel\n", rc_black, rc_green);
 
-    asm volatile ("int $0x3");
-    asm volatile ("int $0x4");
+    init_timer(200);
+
+    //开启中断
+    asm volatile ("sti");
     return 0;
 }
