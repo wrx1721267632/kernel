@@ -14,7 +14,7 @@
 
 #define assert(x, info)         \
         do {                    \
-            if ((!x)) {         \
+            if (!(x)) {         \
                 panic(info);    \
             }                   \
         } while(0)
