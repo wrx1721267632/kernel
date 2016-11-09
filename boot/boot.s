@@ -24,8 +24,9 @@ MBOOT_CHECKSUM     equ -(MBOOT_HEADER_MAGIC+MBOOT_HEADER_FLAGS)
 ;   8   u32 checksum必须
 ;
 
-[BITS 32]           ;所有代码以32位的方式编译
-section .text       ;代码段开始
+[BITS 32]
+
+section .init.text
 
 ;在代码段起始位设置符合Multiboot规范的标记
 
@@ -34,26 +35,55 @@ dd MBOOT_HEADER_FLAGS   ;GRUB的一些加载时选项,其详细注释在定义�
 dd MBOOT_CHECKSUM   ;检测数值,其含义在定义处
 
 [GLOBAL start]          ;向外部声明内核代码入口,此处提供该声明给链接器
-[GLOBAL glb_mboot_ptr]  ;向外部声明struct multiboot *变量
+[GLOBAL mboot_ptr_tmp]  ;向外部声明struct multiboot *变量
 [EXTERN kern_entry]     ;声明内核c代码入口地址
 
 start:
-    cli                         ;此时还没有设置好中断处理,要关闭中断
+        cli                     ;此时还没有设置好保护模式的中断处理
+                                ;所以必须关中断
+        mov [glb_mboot_ptr]     ;将 ebx 中存储的指针存入 glb_mboot_ptr 变量
+        mov esp, STACK_TOP      ;设置内核栈地址, 按照 multiboot 规范
+        and esp, 0FFFFFFF0H     ;栈地址按照 16 字节对齐
+        mov ebp, 0              ;帧指针修改为 0
+        call kern_entry         ;调用内核入口函数
 
-    mov esp, STACK_TOP          ;设置内核栈地址
-    mov ebp, 0                  ;将栈帧指针设置为0
-    and esp, 0FFFFFFF0H         ;栈地址按照字节对齐
-    mov [glb_mboot_ptr],ebx     ;将ebx中存储的指针存入全局变量
-    call kern_entry             ;调用内核初始函数
 
-stop:
-    hlt                         ;停机
-    jmp stop                    ;到这里结束
+section .init.data          ;开启分页前临时的数据段
+stack:  times 1024 db 0     ;这里作为临时内核栈
+STACK_TOP equ $-stack-1     ;内核栈顶, $ 符指代是当前地址
 
-section .bss                    ;未初始化的数据段
-stack:
-    resb 32768                  ;这里作为内核栈
-glb_mboot_ptr:                  ;全局的multiboot结构指针
-    resb 4
-STACK_TOP equ $-stack-1         ;内核栈顶,$表示当前地址
+glb_mboot_ptr:  dd 0        ; 全局 multiboot 结构体指针
+
+;[BITS 32]           ;所有代码以32位的方式编译
+;;section .text       ;代码段开始
+;
+;;在代码段起始位设置符合Multiboot规范的标记
+;
+;dd MBOOT_HEADER_MAGIC   ;GRUB通过这个魔数判断该映像是否支持
+;dd MBOOT_HEADER_FLAGS   ;GRUB的一些加载时选项,其详细注释在定义处
+;dd MBOOT_CHECKSUM   ;检测数值,其含义在定义处
+;
+;[GLOBAL start]          ;向外部声明内核代码入口,此处提供该声明给链接器
+;[GLOBAL glb_mboot_ptr]  ;向外部声明struct multiboot *变量
+;[EXTERN kern_entry]     ;声明内核c代码入口地址
+;
+;start:
+;    cli                         ;此时还没有设置好中断处理,要关闭中断
+;
+;    mov esp, STACK_TOP          ;设置内核栈地址
+;    mov ebp, 0                  ;将栈帧指针设置为0
+;    and esp, 0FFFFFFF0H         ;栈地址按照字节对齐
+;    mov [glb_mboot_ptr],ebx     ;将ebx中存储的指针存入全局变量
+;    call kern_entry             ;调用内核初始函数
+;
+;stop:
+;    hlt                         ;停机
+;    jmp stop                    ;到这里结束
+;
+;section .bss                    ;未初始化的数据段
+;stack:
+;    resb 32768                  ;这里作为内核栈
+;glb_mboot_ptr:                  ;全局的multiboot结构指针
+;    resb 4
+;STACK_TOP equ $-stack-1         ;内核栈顶,$表示当前地址
 
