@@ -39,20 +39,20 @@ dd MBOOT_CHECKSUM   ;检测数值,其含义在定义处
 [EXTERN kern_entry]     ;声明内核c代码入口地址
 
 start:
-        cli                     ;此时还没有设置好保护模式的中断处理
-                                ;所以必须关中断
-        mov [glb_mboot_ptr]     ;将 ebx 中存储的指针存入 glb_mboot_ptr 变量
-        mov esp, STACK_TOP      ;设置内核栈地址, 按照 multiboot 规范
-        and esp, 0FFFFFFF0H     ;栈地址按照 16 字节对齐
-        mov ebp, 0              ;帧指针修改为 0
-        call kern_entry         ;调用内核入口函数
+        cli                         ;此时还没有设置好保护模式的中断处理
+                                    ;所以必须关中断
+        mov [mboot_ptr_tmp], ebx    ;将 ebx 中存储的指针存入 glb_mboot_ptr 变量
+        mov esp, STACK_TOP          ;设置内核栈地址, 按照 multiboot 规范
+        and esp, 0FFFFFFF0H         ;栈地址按照 16 字节对齐
+        mov ebp, 0                  ;帧指针修改为 0
+        call kern_entry             ;调用内核入口函数
 
 
 section .init.data          ;开启分页前临时的数据段
 stack:  times 1024 db 0     ;这里作为临时内核栈
 STACK_TOP equ $-stack-1     ;内核栈顶, $ 符指代是当前地址
 
-glb_mboot_ptr:  dd 0        ; 全局 multiboot 结构体指针
+mboot_ptr_tmp:  dd 0        ; 全局 multiboot 结构体指针
 
 ;[BITS 32]           ;所有代码以32位的方式编译
 ;;section .text       ;代码段开始
