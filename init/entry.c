@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "pmm.h"
 #include "vmm.h"
+#include "heap.h"
 
 // 内核初始化函数
 void kern_init();
@@ -111,6 +112,11 @@ void kern_init()
     printk("Alloc Physical addr: 0x%x\n", allc_addr);
     allc_addr = pmm_alloc_page();
     printk("Alloc Physical addr: 0x%x\n", allc_addr);
+
+    init_vmm();
+    init_heap();
+
+    test_heap();
 
     while (1) {
         asm volatile("hlt");
